@@ -171,11 +171,11 @@ setRefClass("model",
                 }
                 else
                 {
-                    say(1,"Estimation for 1 groups")
+                    say(1,"Estimation for 1 groups (ignore this plz)")
                     do_with_inits(
-                        list(getRefClass(membership_name)(
-                            network_size=.self$number_of_nodes())),
-                        1,reinitialization_effort)
+                       list(getRefClass(membership_name)(
+                           network_size=.self$number_of_nodes())),
+                       1,reinitialization_effort)
 
                 }
             }
@@ -216,10 +216,17 @@ setRefClass("model",
             Q_stop <- explore_max
 
             ret<-FALSE
-            while(Q<Q_stop && (which.max(ICL)*exploration_factor>length(ICL) || Q<Q_without_ICL))
+            inits <- .self$provide_init(1)
+            r<-.self$do_with_inits(inits,1,reinitialization_effort)
+            
+            while(Q<Q_stop+1 && (which.max(ICL)*exploration_factor>length(ICL) || Q<Q_without_ICL))
             {
                 Q<-Q+1
-
+                if(Q != explore_max){
+                    ret<-ret||r
+                    next
+                }
+            
                 say(3,"For",Q,"groups")
                 say(4,'Selecting initialization')
 
@@ -239,13 +246,13 @@ setRefClass("model",
                     inits <- list()
                 }
 
-                say(5,"Init from splitting groups from",Q-1,"groups")
+                # say(5,"Init from splitting groups from",Q-1,"groups")
                
-                tic() 
+                # tic() 
                 
-                inits <- c(inits,.self$split_membership(Q-1))
+                # inits <- c(inits,.self$split_membership(Q-1))
 
-                toc('init_split')
+                # toc('init_split')
 
                 if(length(inits)>0)
                 {
